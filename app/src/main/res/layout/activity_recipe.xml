@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:paddingStart="@dimen/activity_horizontal_margin"
+    android:paddingEnd="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:layout_height="wrap_content">
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:context="com.baking.chris.mybakingrecipes.RecipeActivity">
+
+        <TextView
+            android:id="@+id/tv_ingredients_list_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            style="@style/TextAppearance.Cursive.Title"
+            android:text="@string/ingredients_list_title"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rv_ingredients"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/round_background_light"
+            android:orientation="vertical"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin"
+            app:layout_constraintStart_toStartOf="@id/tv_ingredients_list_title"
+            app:layout_constraintEnd_toEndOf="@id/tv_ingredients_list_title"
+            app:layout_constraintTop_toBottomOf="@id/tv_ingredients_list_title"/>
+
+        <TextView
+            android:id="@+id/tv_introduction_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            style="@style/TextAppearance.Cursive.Title"
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:text="@string/introduction_title"
+            app:layout_constraintTop_toBottomOf="@id/rv_ingredients"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <com.google.android.exoplayer2.ui.SimpleExoPlayerView
+            android:id="@+id/intro_exo_player_view"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin"
+            app:show_timeout="800"
+            app:rewind_increment="2000"
+            app:fastforward_increment="2000"
+            app:layout_constraintDimensionRatio="W,6:9"
+            app:layout_constraintTop_toBottomOf="@id/tv_introduction_title"
+            app:layout_constraintStart_toStartOf="@id/tv_introduction_title"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <TextView
+            android:id="@+id/tv_steps_list_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            style="@style/TextAppearance.Cursive.Title"
+            android:text="@string/steps_list_title"
+            app:layout_constraintTop_toBottomOf="@id/intro_exo_player_view"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rv_steps"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin"
+            android:background="@drawable/round_background_light"
+            app:layout_constraintStart_toStartOf="@id/tv_steps_list_title"
+            app:layout_constraintTop_toBottomOf="@id/tv_steps_list_title"
+            app:layout_constraintEnd_toEndOf="@id/tv_steps_list_title"/>
+
+    </android.support.constraint.ConstraintLayout>
+</ScrollView>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#F3E5AB</color>
+    <color name="colorPrimaryLight">#FFFFDD</color>
+    <color name="colorPrimaryDark">#C0B37B</color>
+    <color name="colorAccent">#D6F0BD</color>
+    <color name="colorAccentLight">#FFFFF0</color>
+    <color name="colorAccentDark">#A4BD8D</color>
+    <color name="transparentGreyDark">#77222222</color>
+    <color name="transparentGreyLight">#55AAAAAA</color>
+
+    <color name="black">#000000</color>
+</resources>
+
+    <!--
+    <?xml version="1.0" encoding="utf-8"?>
+    <resources>
+        <color name="colorPrimary">#FFA047</color>
+        <color name="colorPrimaryLight">#FFD176</color>
+        <color name="colorPrimaryDark">#C77115</color>
+        <color name="colorAccent">#FF4081</color>
+        <color name="colorAccentLight">#FF79B0</color>
+        <color name="colorAccentDark">#C60055</color>
+        <color name="transparentGreyDark">#77222222</color>
+        <color name="transparentGreyLight">#55AAAAAA</color>
+
+        <color name="black">#000000</color>
+    </resources>
+
+    <?xml version="1.0" encoding="utf-8"?>
+    <resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="transparentGreyDark">#77222222</color>
+    <color name="transparentGreyLight">#55AAAAAA</color>
+
+    <color name="black">#000000</color>
+    </resources>
+    -->
