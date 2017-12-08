@@ -130,8 +130,6 @@ public class MainActivity extends AppCompatActivity implements RecipeListFragmen
             releasePlayer();
             findViewById(R.id.cl_step_layout).setVisibility(View.INVISIBLE);
             this.recipe = recipe;
-            findViewById(R.id.exo_player_view).setVisibility(View.GONE);
-            findViewById(R.id.tv_introduction_title).setVisibility(View.GONE);
             findViewById(R.id.sv_recipe_layout).setVisibility(View.VISIBLE);
             initRecipeView();
         }
