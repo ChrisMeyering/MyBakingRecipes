@@ -1,9 +1,8 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorAccent"
+    android:background="@color/colorPrimaryDark"
     android:padding="@dimen/widget_margin">
-
 
     <GridView
         android:id="@+id/widget_grid_view"
@@ -11,6 +10,5 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:numColumns="1" />
-
 
 </FrameLayout>

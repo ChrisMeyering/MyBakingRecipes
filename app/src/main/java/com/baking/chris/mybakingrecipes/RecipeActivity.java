@@ -56,18 +56,29 @@ public class RecipeActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        setContentView(R.layout.activity_recipe);
         Intent parentIntent = getIntent();
         if (parentIntent != null) {
             if (parentIntent.hasExtra(getString(R.string.RECIPE_KEY)))
-            recipe = parentIntent.getParcelableExtra(getString(R.string.RECIPE_KEY));
+                recipe = parentIntent.getParcelableExtra(getString(R.string.RECIPE_KEY));
         }
+
         ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setTitle(recipe.getName());
+        if (getResources().getBoolean(R.bool.is_landscape)) {
+            View decorView = getWindow().getDecorView();
+            decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
+            if (actionBar != null) {
+                actionBar.hide();
+            }
+            setContentView(R.layout.activity_fullscreen_exo_player);
+        } else {
+            if (actionBar != null) {
+                actionBar.setDisplayHomeAsUpEnabled(true);
+                actionBar.setTitle(recipe.getName());
+                actionBar.show();
+            }
+            setContentView(R.layout.activity_recipe);
         }
+
         initializeMediaSession();
     }
 
@@ -117,7 +128,10 @@ public class RecipeActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
-        initView();
+        if (getResources().getBoolean(R.bool.is_landscape)) {
+            initPlayer();
+        } else
+            initView();
     }
 
     @Override
@@ -146,7 +160,7 @@ public class RecipeActivity extends AppCompatActivity
 
     private void initPlayer() {
         if (player == null) {
-            playerView = findViewById(R.id.intro_exo_player_view);
+            playerView = findViewById(R.id.exo_player_view);
             playerView.setVisibility(View.VISIBLE);
             TrackSelector trackSelector = new DefaultTrackSelector();
             LoadControl loadControl = new DefaultLoadControl();

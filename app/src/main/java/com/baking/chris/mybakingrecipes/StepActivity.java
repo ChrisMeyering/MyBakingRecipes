@@ -7,7 +7,6 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -27,13 +26,10 @@ import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
-import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 import com.squareup.picasso.Callback;
@@ -55,19 +51,47 @@ public class StepActivity extends AppCompatActivity implements ExoPlayer.EventLi
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_step);
-        if (savedInstanceState != null) {
-
-        }
         Intent parentIntent = getIntent();
         if (parentIntent != null) {
             currentStepId = parentIntent.getIntExtra(getString(R.string.STEP_NUMBER_KEY), 1);
             steps = parentIntent.getParcelableArrayListExtra(getString(R.string.STEPS_KEY));
             recipeName = parentIntent.getStringExtra(getString(R.string.RECIPE_NAME_KEY));
         }
+        if (savedInstanceState != null) {
+            currentStepId = savedInstanceState.getInt(getString(R.string.STEP_NUMBER_KEY));
+        }
+
+        ActionBar actionBar = getSupportActionBar();
+        String videoUrl = steps.get(currentStepId).getVideoURL();
+        if (getResources().getBoolean(R.bool.is_landscape) && videoUrl != null && videoUrl.trim().length() > 0) {
+            View decorView = getWindow().getDecorView();
+            decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
+            if (actionBar != null) {
+                actionBar.hide();
+            }
+            setContentView(R.layout.activity_fullscreen_exo_player);
+        } else {
+            setContentView(R.layout.activity_step);
+        }
         initializeMediaSession();
-        updateView();
     }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(getString(R.string.STEP_NUMBER_KEY) , currentStepId);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        String videoUrl = steps.get(currentStepId).getVideoURL();
+        if (getResources().getBoolean(R.bool.is_landscape) && videoUrl != null && videoUrl.trim().length() > 0) {
+            initPlayer();
+        } else
+            updateView();
+    }
+
     private void initializeMediaSession() {
         mediaSession = new MediaSessionCompat(this, TAG);
         mediaSession.setFlags(
@@ -147,7 +171,7 @@ public class StepActivity extends AppCompatActivity implements ExoPlayer.EventLi
         if (stepVideoURL != null && stepVideoURL.trim().length() > 0) {
             initPlayer();
         } else {
-            findViewById(R.id.step_exo_player_view).setVisibility(View.GONE);
+            findViewById(R.id.exo_player_view).setVisibility(View.GONE);
         }
         TextView tvStepDescription = findViewById(R.id.tv_step_description);
         tvStepDescription.setText(step.getDescription());
@@ -170,7 +194,7 @@ public class StepActivity extends AppCompatActivity implements ExoPlayer.EventLi
 
     private void initPlayer() {
         if (player == null) {
-            playerView = findViewById(R.id.step_exo_player_view);
+            playerView = findViewById(R.id.exo_player_view);
             playerView.setVisibility(View.VISIBLE);
             TrackSelector trackSelector = new DefaultTrackSelector();
             LoadControl loadControl = new DefaultLoadControl();
@@ -195,13 +219,26 @@ public class StepActivity extends AppCompatActivity implements ExoPlayer.EventLi
                 currentStepId--;
                 break;
         }
-        releasePlayer();
-        updateView();
+        String videoUrl = steps.get(currentStepId).getVideoURL();
+        if (getResources().getBoolean(R.bool.is_landscape) && videoUrl != null && videoUrl.trim().length() > 0) {
+            View decorView = getWindow().getDecorView();
+            decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
+            ActionBar actionBar = getSupportActionBar();
+            if (actionBar != null) {
+                actionBar.hide();
+            }
+            setContentView(R.layout.activity_fullscreen_exo_player);
+            releasePlayer();
+            initPlayer();
+        } else {
+            releasePlayer();
+            updateView();
+        }
     }
 
     private void releasePlayer() {
         if (player != null) {
-            findViewById(R.id.step_exo_player_view).setVisibility(View.GONE);
+            findViewById(R.id.exo_player_view).setVisibility(View.GONE);
             player.release();
             player = null;
         }

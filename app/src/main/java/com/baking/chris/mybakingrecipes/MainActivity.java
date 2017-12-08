@@ -1,11 +1,9 @@
 package com.baking.chris.mybakingrecipes;
 
 import android.content.BroadcastReceiver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.database.Cursor;
 import android.net.Uri;
 
 import android.support.v4.media.session.MediaButtonReceiver;
@@ -31,7 +29,6 @@ import com.baking.chris.mybakingrecipes.ui.IngredientListAdapter;
 import com.baking.chris.mybakingrecipes.ui.RecipeListFragment;
 import com.baking.chris.mybakingrecipes.ui.StepListAdapter;
 
-import com.baking.chris.mybakingrecipes.widget.GridWidgetService;
 import com.baking.chris.mybakingrecipes.widget.RecipeIngredientsService;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -133,7 +130,7 @@ public class MainActivity extends AppCompatActivity implements RecipeListFragmen
             releasePlayer();
             findViewById(R.id.cl_step_layout).setVisibility(View.INVISIBLE);
             this.recipe = recipe;
-            findViewById(R.id.intro_exo_player_view).setVisibility(View.GONE);
+            findViewById(R.id.exo_player_view).setVisibility(View.GONE);
             findViewById(R.id.tv_introduction_title).setVisibility(View.GONE);
             findViewById(R.id.sv_recipe_layout).setVisibility(View.VISIBLE);
             initRecipeView();
@@ -225,7 +222,7 @@ public class MainActivity extends AppCompatActivity implements RecipeListFragmen
         if (stepVideoURL != null && stepVideoURL.trim().length() > 0) {
             initPlayer();
         } else {
-            findViewById(R.id.step_exo_player_view).setVisibility(View.GONE);
+            findViewById(R.id.exo_player_view).setVisibility(View.GONE);
         }
         TextView tvStepDescription = findViewById(R.id.tv_step_description);
         tvStepDescription.setText(step.getDescription());
@@ -268,7 +265,7 @@ public class MainActivity extends AppCompatActivity implements RecipeListFragmen
 
     private void initPlayer() {
         if (player == null) {
-            playerView = findViewById(R.id.step_exo_player_view);
+            playerView = findViewById(R.id.exo_player_view);
             playerView.setVisibility(View.VISIBLE);
             TrackSelector trackSelector = new DefaultTrackSelector();
             LoadControl loadControl = new DefaultLoadControl();
