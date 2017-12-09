@@ -1,4 +1,4 @@
-package com.baking.chris.mybakingrecipes;
+package com.baking.chris.mybakingrecipes.activity;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -13,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.baking.chris.mybakingrecipes.R;
 import com.baking.chris.mybakingrecipes.data.Step;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlaybackException;

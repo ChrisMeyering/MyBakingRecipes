@@ -11,7 +11,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
-import com.baking.chris.mybakingrecipes.MainActivity;
 import com.baking.chris.mybakingrecipes.R;
 import com.baking.chris.mybakingrecipes.data.Recipe;
 import com.baking.chris.mybakingrecipes.utils.ApiInterface;
@@ -29,10 +28,15 @@ import retrofit2.Response;
 
 public class RecipeListFragment extends Fragment {
     public static final String TAG = RecipeListFragment.class.getSimpleName();
-    OnRecipeClickListener mCallback;
+    OnRecipeClickListener onRecipeClickListener;
+    OnGetRecipesDoneListener onGetRecipesDoneListener;
     RecipeListAdapter adapter;
     public interface OnRecipeClickListener {
         void onRecipeSelected(Recipe recpie);
+    }
+
+    public interface OnGetRecipesDoneListener {
+        void onDone();
     }
     public RecipeListFragment () { }
 
@@ -40,10 +44,11 @@ public class RecipeListFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         try {
-            mCallback = (OnRecipeClickListener) context;
+            onRecipeClickListener = (OnRecipeClickListener) context;
+            onGetRecipesDoneListener = (OnGetRecipesDoneListener) context;
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString()
-                    + " must implement OnRecipeClickListener");
+                    + " must implement interfaces");
         }
     }
 
@@ -59,7 +64,7 @@ public class RecipeListFragment extends Fragment {
         gridVew.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                mCallback.onRecipeSelected((Recipe) adapter.getItem(position));
+                onRecipeClickListener.onRecipeSelected((Recipe) adapter.getItem(position));
             }
         });
         return rootView;
@@ -73,8 +78,8 @@ public class RecipeListFragment extends Fragment {
             @Override
             public void onResponse(Call<List<Recipe>> call, Response<List<Recipe>> response) {
                 adapter.setRecipes(response.body());
+                onGetRecipesDoneListener.onDone();
 
-                Log.i(TAG, "Num of recipes: " +response.body().size() );
             }
 
             @Override

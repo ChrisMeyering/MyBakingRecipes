@@ -1,4 +1,4 @@
-package com.baking.chris.mybakingrecipes;
+package com.baking.chris.mybakingrecipes.activity;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -6,6 +6,10 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.net.Uri;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.annotation.VisibleForTesting;
+import android.support.test.espresso.IdlingResource;
 import android.support.v4.media.session.MediaButtonReceiver;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
@@ -21,9 +25,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.baking.chris.mybakingrecipes.R;
 import com.baking.chris.mybakingrecipes.data.Ingredient;
 import com.baking.chris.mybakingrecipes.data.Recipe;
 import com.baking.chris.mybakingrecipes.data.Step;
+import com.baking.chris.mybakingrecipes.idlingResource.SimpleIdlingResource;
 import com.baking.chris.mybakingrecipes.provider.RecipesContract;
 import com.baking.chris.mybakingrecipes.ui.IngredientListAdapter;
 import com.baking.chris.mybakingrecipes.ui.RecipeListFragment;
@@ -53,11 +59,12 @@ import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 public class MainActivity extends AppCompatActivity implements RecipeListFragment.OnRecipeClickListener,
+        RecipeListFragment.OnGetRecipesDoneListener,
         StepListAdapter.OnStepSelectedListener,
         ExoPlayer.EventListener
 {
     public static final String TAG = MainActivity.class.getSimpleName();
-    boolean isTablet;
+    private boolean isTablet;
     private Recipe recipe = null;
     private int currentStepId;
 
@@ -66,11 +73,25 @@ public class MainActivity extends AppCompatActivity implements RecipeListFragmen
     private static MediaSessionCompat mediaSession;
     private PlaybackStateCompat.Builder stateBuilder;
 
+    @Nullable
+    private SimpleIdlingResource mIdlingResource;
+
+    @VisibleForTesting
+    @NonNull
+    public IdlingResource getIdlingResource() {
+        if (mIdlingResource == null) {
+            mIdlingResource = new SimpleIdlingResource();
+        }
+        mIdlingResource.setIdleState(false);
+        return mIdlingResource;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         isTablet = getResources().getBoolean(R.bool.is_tablet_layout);
+        getIdlingResource();
     }
 
     @Override
@@ -239,6 +260,13 @@ public class MainActivity extends AppCompatActivity implements RecipeListFragmen
                         PlaybackStateCompat.ACTION_PLAY_PAUSE);
         mediaSession.setPlaybackState(stateBuilder.build());
         mediaSession.setCallback(new MediaSessionCallbacks());
+    }
+
+    @Override
+    public void onDone() {
+        if (mIdlingResource != null) {
+            mIdlingResource.setIdleState(true);
+        }
     }
 
     private class MediaSessionCallbacks extends MediaSessionCompat.Callback {

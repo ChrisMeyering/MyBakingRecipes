@@ -21,7 +21,7 @@
             android:name=".provider.RecipesProvider"
             android:exported="true"/>
 
-        <activity android:name=".MainActivity">
+        <activity android:name=".activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -29,21 +29,19 @@
         </activity>
 
         <activity
-            android:name=".RecipeActivity"
-            android:parentActivityName=".MainActivity"
-            android:configChanges="orientation">
+            android:name=".activity.RecipeActivity"
+            android:parentActivityName=".activity.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
+                android:value=".activity.MainActivity" />
         </activity>
 
         <activity
-            android:name=".StepActivity"
-            android:parentActivityName=".RecipeActivity"
-            android:configChanges="orientation">
+            android:name=".activity.StepActivity"
+            android:parentActivityName=".activity.RecipeActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".RecipeActivity" />
+                android:value=".activity.RecipeActivity" />
         </activity>
 
         <receiver android:name=".widget.MyBakingRecipesWidgetProvider">

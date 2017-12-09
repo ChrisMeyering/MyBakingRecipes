@@ -14,4 +14,5 @@
     <string name="next">Next</string>
     <string name="appwidget_text">EXAMPLE</string>
     <string name="add_widget">Add widget</string>
+    <string name="SCROLL_VIEW_POSITION_KEY">scroll_view_position_key</string>
 </resources>

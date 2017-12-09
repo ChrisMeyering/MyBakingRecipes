@@ -1,4 +1,4 @@
-package com.baking.chris.mybakingrecipes;
+package com.baking.chris.mybakingrecipes.activity;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -16,7 +16,10 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ScrollView;
+import android.widget.TextView;
 
+import com.baking.chris.mybakingrecipes.R;
 import com.baking.chris.mybakingrecipes.data.Recipe;
 import com.baking.chris.mybakingrecipes.data.Step;
 import com.baking.chris.mybakingrecipes.ui.IngredientListAdapter;
@@ -52,7 +55,7 @@ public class RecipeActivity extends AppCompatActivity
     private SimpleExoPlayerView playerView;
     private static MediaSessionCompat mediaSession;
     private PlaybackStateCompat.Builder stateBuilder;
-
+    private int[] position = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,9 +80,34 @@ public class RecipeActivity extends AppCompatActivity
                 actionBar.show();
             }
             setContentView(R.layout.activity_recipe);
+            ((TextView)findViewById(R.id.test_recipe_name)).setText(recipe.getName());
+        }
+        if (savedInstanceState != null) {
+            position = savedInstanceState.getIntArray(getString(R.string.SCROLL_VIEW_POSITION_KEY));
+            final ScrollView parent = findViewById(R.id.sv_activity_recipe);
+            if (position != null && position.length == 2 && parent != null) {
+                parent.post(new Runnable() {
+                    @Override
+                    public void run() {parent.scrollTo(position[0], position[1]);
+                    }
+                });
+            }
         }
 
         initializeMediaSession();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        ScrollView sv = findViewById(R.id.sv_activity_recipe);
+        if (sv != null){
+            outState.putIntArray(getString(R.string.SCROLL_VIEW_POSITION_KEY),
+                new int[] {sv.getScrollX(), sv.getScrollY()});
+        } else if (position != null) {
+            outState.putIntArray(getString(R.string.SCROLL_VIEW_POSITION_KEY), position);
+        }
+
     }
 
     private void initializeMediaSession() {
