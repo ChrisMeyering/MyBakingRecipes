@@ -207,7 +207,9 @@ public class RecipeActivity extends AppCompatActivity
                     new DefaultDataSourceFactory(this, userAgent), new DefaultExtractorsFactory(), null, null);
             player.prepare(mediaSource);
             player.setPlayWhenReady(playWhenReady);
+            playWhenReady = false;
             player.seekTo(playerPosition);
+            playerPosition = 0;
             mediaSession.setActive(true);
         }
     }

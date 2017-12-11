@@ -7,6 +7,7 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -86,6 +87,7 @@ public class StepActivity extends AppCompatActivity implements ExoPlayer.EventLi
         super.onSaveInstanceState(outState);
         outState.putInt(getString(R.string.STEP_NUMBER_KEY) , currentStepId);
         if (player != null) {
+            Log.i(TAG, "Saving player parameters");
             outState.putLong(getString(R.string.VIDEO_PLAYER_POSITION_KEY), player.getCurrentPosition());
             outState.putBoolean(getString(R.string.VIDEO_PLAYER_PLAY_WHEN_READY_KEY), player.getPlayWhenReady());
         }
@@ -188,13 +190,6 @@ public class StepActivity extends AppCompatActivity implements ExoPlayer.EventLi
         releasePlayer();
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        releasePlayer();
-    }
-
-
     private void initPlayer() {
         if (player == null) {
             playerView = findViewById(R.id.exo_player_view);
@@ -209,7 +204,9 @@ public class StepActivity extends AppCompatActivity implements ExoPlayer.EventLi
                     new DefaultDataSourceFactory(this, userAgent), new DefaultExtractorsFactory(), null, null);
             player.prepare(mediaSource);
             player.setPlayWhenReady(playWhenReady);
+            playWhenReady = false;
             player.seekTo(playerPosition);
+            playerPosition = 0;
             mediaSession.setActive(true);
         }
     }

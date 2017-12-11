@@ -74,6 +74,9 @@ public class MainActivity extends AppCompatActivity implements RecipeListFragmen
     private static MediaSessionCompat mediaSession;
     private PlaybackStateCompat.Builder stateBuilder;
 
+    private long playerPosition = 0;
+    boolean playWhenReady = false;
+
     @Nullable
     private SimpleIdlingResource mIdlingResource;
 
@@ -96,6 +99,9 @@ public class MainActivity extends AppCompatActivity implements RecipeListFragmen
         if (savedInstanceState != null) {
             recipe = savedInstanceState.getParcelable(getString(R.string.RECIPE_KEY));
             currentStepId = savedInstanceState.getInt(getString(R.string.CURRENT_STEP_KEY));
+
+            playWhenReady = savedInstanceState.getBoolean(getString(R.string.VIDEO_PLAYER_PLAY_WHEN_READY_KEY), false);
+            playerPosition = savedInstanceState.getLong(getString(R.string.VIDEO_PLAYER_POSITION_KEY), 0);
         }
     }
 
@@ -330,7 +336,10 @@ public class MainActivity extends AppCompatActivity implements RecipeListFragmen
             MediaSource mediaSource = new ExtractorMediaSource(Uri.parse(recipe.getSteps().get(currentStepId).getVideoURL()),
                     new DefaultDataSourceFactory(this, userAgent), new DefaultExtractorsFactory(), null, null);
             player.prepare(mediaSource);
-            player.setPlayWhenReady(false);
+            player.setPlayWhenReady(playWhenReady);
+            playWhenReady = false;
+            player.seekTo(playerPosition);
+            playerPosition = 0;
             mediaSession.setActive(true);
         }
     }
@@ -406,6 +415,10 @@ public class MainActivity extends AppCompatActivity implements RecipeListFragmen
         super.onSaveInstanceState(outState);
         if (recipe != null) {
             outState.putParcelable(getString(R.string.RECIPE_KEY), recipe);
+        }
+        if (player != null) {
+            outState.putLong(getString(R.string.VIDEO_PLAYER_POSITION_KEY), player.getCurrentPosition());
+            outState.putBoolean(getString(R.string.VIDEO_PLAYER_PLAY_WHEN_READY_KEY), player.getPlayWhenReady());
         }
         outState.putInt(getString(R.string.CURRENT_STEP_KEY), currentStepId);
     }
