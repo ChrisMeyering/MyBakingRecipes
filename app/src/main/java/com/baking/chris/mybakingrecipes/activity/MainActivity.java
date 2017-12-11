@@ -20,6 +20,7 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -66,7 +67,7 @@ public class MainActivity extends AppCompatActivity implements RecipeListFragmen
     public static final String TAG = MainActivity.class.getSimpleName();
     private boolean isTablet;
     private Recipe recipe = null;
-    private int currentStepId;
+    private int currentStepId = -1;
 
     private SimpleExoPlayer player;
     private SimpleExoPlayerView playerView;
@@ -81,28 +82,32 @@ public class MainActivity extends AppCompatActivity implements RecipeListFragmen
     public IdlingResource getIdlingResource() {
         if (mIdlingResource == null) {
             mIdlingResource = new SimpleIdlingResource();
+            mIdlingResource.setIdleState(false);
         }
-        mIdlingResource.setIdleState(false);
         return mIdlingResource;
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getIdlingResource();
         setContentView(R.layout.activity_main);
         isTablet = getResources().getBoolean(R.bool.is_tablet_layout);
-        getIdlingResource();
+        if (savedInstanceState != null) {
+            recipe = savedInstanceState.getParcelable(getString(R.string.RECIPE_KEY));
+            currentStepId = savedInstanceState.getInt(getString(R.string.CURRENT_STEP_KEY));
+        }
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         if (isTablet) {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
+            //setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+            //setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
             initializeMediaSession();
             if (recipe != null)
-                initRecipeView();
+                onRecipeSelected(recipe);
         }
     }
 
@@ -118,15 +123,23 @@ public class MainActivity extends AppCompatActivity implements RecipeListFragmen
         if (!isTablet) {
             super.onBackPressed();
         } else if (findViewById(R.id.cl_step_layout).getVisibility() == View.VISIBLE) {
-            findViewById(R.id.cl_step_layout).setVisibility(View.INVISIBLE);
+            if (getResources().getBoolean(R.bool.is_landscape)){
+                findViewById(R.id.cl_step_layout).setVisibility(View.INVISIBLE);
+            }else {
+                findViewById(R.id.cl_step_layout).setVisibility(View.GONE);
+                findViewById(R.id.recipe_list_fragment).setVisibility(View.VISIBLE);
+            }
             releasePlayer();
+            currentStepId = -1;
             if (actionBar != null)
                 actionBar.setSubtitle("");
         } else if (findViewById(R.id.sv_recipe_layout).getVisibility() == View.VISIBLE) {
             findViewById(R.id.sv_recipe_layout).setVisibility(View.INVISIBLE);
             recipe = null;
-            if (actionBar != null)
+            if (actionBar != null) {
                 actionBar.setTitle(getString(R.string.app_name));
+                actionBar.setDisplayHomeAsUpEnabled(false);
+            }
         } else {
             super.onBackPressed();
         }
@@ -148,11 +161,28 @@ public class MainActivity extends AppCompatActivity implements RecipeListFragmen
             recipeIntent.putExtras(extra);
             startActivity(recipeIntent);
         } else {
-            releasePlayer();
-            findViewById(R.id.cl_step_layout).setVisibility(View.INVISIBLE);
             this.recipe = recipe;
+            ((TextView)findViewById(R.id.test_recipe_name)).setText(recipe.getName());
+            releasePlayer();
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            if (getResources().getBoolean(R.bool.is_landscape)) {
+                findViewById(R.id.cl_step_layout).setVisibility(View.INVISIBLE);
+            } else {
+                findViewById(R.id.cl_step_layout).setVisibility(View.GONE);
+            }
             findViewById(R.id.sv_recipe_layout).setVisibility(View.VISIBLE);
             initRecipeView();
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 
@@ -173,10 +203,13 @@ public class MainActivity extends AppCompatActivity implements RecipeListFragmen
         rvSteps.setNestedScrollingEnabled(false);
         rvSteps.setLayoutManager(new LinearLayoutManager(this));
         rvSteps.setAdapter(new StepListAdapter(this, recipe.getSteps()));
+        if (currentStepId != -1) onStepSelected(currentStepId + 1);
     }
 
     @Override
     public void onStepSelected(int stepNumber) {
+        if (!getResources().getBoolean(R.bool.is_landscape))
+            findViewById(R.id.recipe_list_fragment).setVisibility(View.GONE);
         findViewById(R.id.cl_step_layout).setVisibility(View.VISIBLE);
         currentStepId = stepNumber - 1;
         releasePlayer();
@@ -214,28 +247,22 @@ public class MainActivity extends AppCompatActivity implements RecipeListFragmen
         }
         String stepThumb = step.getThumbnailURL();
         if (stepThumb != null && stepThumb.trim().length() > 0) {
-            String thumbType = stepThumb.substring(stepThumb.lastIndexOf('.')+1);
-            if (thumbType.equals("mp4")) {
-                step.setVideoURL(stepThumb);
-                step.setThumbnailURL(null);
-            } else {
-                final ImageView ivStepThumb = findViewById(R.id.iv_step_thumbnail);
-                ivStepThumb.setVisibility(View.VISIBLE);
-                Picasso.with(this).load(Uri.parse(stepThumb))
-                        .placeholder(R.drawable.recipe_placeholder)
-                        .error(R.drawable.error)
-                        .into(ivStepThumb, new Callback() {
-                            @Override
-                            public void onSuccess() {
-                            }
+            final ImageView ivStepThumb = findViewById(R.id.iv_step_thumbnail);
+            ivStepThumb.setVisibility(View.VISIBLE);
+            Picasso.with(this).load(Uri.parse(stepThumb))
+                    .placeholder(R.drawable.recipe_placeholder)
+                    .error(R.drawable.error)
+                    .into(ivStepThumb, new Callback() {
+                        @Override
+                        public void onSuccess() {
+                        }
 
-                            @Override
-                            public void onError() {
-                                Toast.makeText(MainActivity.this, "Error: Unable to load thumbnail.", Toast.LENGTH_LONG).show();
-                                ivStepThumb.setVisibility(View.GONE);
-                            }
-                        });
-            }
+                        @Override
+                        public void onError() {
+                            Toast.makeText(MainActivity.this, "Error: Unable to load thumbnail.", Toast.LENGTH_LONG).show();
+                            ivStepThumb.setVisibility(View.GONE);
+                        }
+                    });
         }
         String stepVideoURL = step.getVideoURL();
         if (stepVideoURL != null && stepVideoURL.trim().length() > 0) {
@@ -264,6 +291,7 @@ public class MainActivity extends AppCompatActivity implements RecipeListFragmen
 
     @Override
     public void onDone() {
+        Log.i(TAG, "onDone");
         if (mIdlingResource != null) {
             mIdlingResource.setIdleState(true);
         }
@@ -373,14 +401,15 @@ public class MainActivity extends AppCompatActivity implements RecipeListFragmen
             MediaButtonReceiver.handleIntent(mediaSession, intent);
         }
     }
-/*
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        if (recipes != null) {
-            outState.putParcelableArrayList(getString(R.string.RECIPES_KEY), (ArrayList<Recipe>) recipes);
+        if (recipe != null) {
+            outState.putParcelable(getString(R.string.RECIPE_KEY), recipe);
         }
+        outState.putInt(getString(R.string.CURRENT_STEP_KEY), currentStepId);
     }
+/*
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {

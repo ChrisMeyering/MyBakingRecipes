@@ -55,7 +55,9 @@ public class RecipeActivity extends AppCompatActivity
     private SimpleExoPlayerView playerView;
     private static MediaSessionCompat mediaSession;
     private PlaybackStateCompat.Builder stateBuilder;
-    private int[] position = null;
+    private int[] scrollPosition = null;
+    private long playerPosition = 0;
+    boolean playWhenReady = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,15 +85,17 @@ public class RecipeActivity extends AppCompatActivity
             ((TextView)findViewById(R.id.test_recipe_name)).setText(recipe.getName());
         }
         if (savedInstanceState != null) {
-            position = savedInstanceState.getIntArray(getString(R.string.SCROLL_VIEW_POSITION_KEY));
+            scrollPosition = savedInstanceState.getIntArray(getString(R.string.SCROLL_VIEW_POSITION_KEY));
             final ScrollView parent = findViewById(R.id.sv_activity_recipe);
-            if (position != null && position.length == 2 && parent != null) {
+            if (scrollPosition != null && scrollPosition.length == 2 && parent != null) {
                 parent.post(new Runnable() {
                     @Override
-                    public void run() {parent.scrollTo(position[0], position[1]);
+                    public void run() {parent.scrollTo(scrollPosition[0], scrollPosition[1]);
                     }
                 });
             }
+            playWhenReady = savedInstanceState.getBoolean(getString(R.string.VIDEO_PLAYER_PLAY_WHEN_READY_KEY));
+            playerPosition = savedInstanceState.getLong(getString(R.string.VIDEO_PLAYER_POSITION_KEY));
         }
 
         initializeMediaSession();
@@ -104,10 +108,13 @@ public class RecipeActivity extends AppCompatActivity
         if (sv != null){
             outState.putIntArray(getString(R.string.SCROLL_VIEW_POSITION_KEY),
                 new int[] {sv.getScrollX(), sv.getScrollY()});
-        } else if (position != null) {
-            outState.putIntArray(getString(R.string.SCROLL_VIEW_POSITION_KEY), position);
+        } else if (scrollPosition != null) {
+            outState.putIntArray(getString(R.string.SCROLL_VIEW_POSITION_KEY), scrollPosition);
         }
-
+        if (player != null) {
+            outState.putLong(getString(R.string.VIDEO_PLAYER_POSITION_KEY), player.getCurrentPosition());
+            outState.putBoolean(getString(R.string.VIDEO_PLAYER_PLAY_WHEN_READY_KEY), player.getPlayWhenReady());
+        }
     }
 
     private void initializeMediaSession() {
@@ -199,7 +206,8 @@ public class RecipeActivity extends AppCompatActivity
             MediaSource mediaSource = new ExtractorMediaSource(Uri.parse(recipe.getSteps().get(0).getVideoURL()),
                     new DefaultDataSourceFactory(this, userAgent), new DefaultExtractorsFactory(), null, null);
             player.prepare(mediaSource);
-            player.setPlayWhenReady(false);
+            player.setPlayWhenReady(playWhenReady);
+            player.seekTo(playerPosition);
             mediaSession.setActive(true);
         }
     }

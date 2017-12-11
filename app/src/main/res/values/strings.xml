@@ -14,5 +14,9 @@
     <string name="next">Next</string>
     <string name="appwidget_text">EXAMPLE</string>
     <string name="add_widget">Add widget</string>
+    <string name="LAYOUT_MANAGER_KEY">layout_manager_key</string>
     <string name="SCROLL_VIEW_POSITION_KEY">scroll_view_position_key</string>
+    <string name="VIDEO_PLAYER_POSITION_KEY">video_player_position_key</string>
+    <string name="VIDEO_PLAYER_PLAY_WHEN_READY_KEY">play_when_ready</string>
+    <string name="CURRENT_STEP_KEY">current_step_key</string>
 </resources>

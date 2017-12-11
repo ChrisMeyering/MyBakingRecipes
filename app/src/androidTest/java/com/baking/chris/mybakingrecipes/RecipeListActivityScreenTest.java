@@ -5,20 +5,15 @@ import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 
-import static android.support.test.espresso.matcher.ViewMatchers.isAssignableFrom;
-import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
-import static org.hamcrest.Matchers.any;
 import static org.hamcrest.Matchers.anything;
 
-import android.support.test.espresso.action.ViewActions;
-import android.support.test.espresso.contrib.RecyclerViewActions;
 import android.support.test.espresso.Espresso;
 import android.support.test.espresso.IdlingResource;
+import android.support.test.espresso.contrib.RecyclerViewActions;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import android.support.v7.widget.Toolbar;
 
 import com.baking.chris.mybakingrecipes.activity.MainActivity;
 
@@ -51,7 +46,8 @@ public class RecipeListActivityScreenTest {
 
     @Test
     public void clickRecipeRecyclerViewItem_OpensRecipeActivity() {
-        onData(anything()).inAdapterView(withId(R.id.recipe_grid_view)).atPosition(0).perform(click());
+        onView(withId(R.id.rv_recipes))
+                .perform(RecyclerViewActions.actionOnItemAtPosition(0 ,click()));
         onView(withId(R.id.test_recipe_name)).check(matches(withText(RECIPE_NAME)));
     }
 

@@ -49,6 +49,8 @@ public class StepActivity extends AppCompatActivity implements ExoPlayer.EventLi
     private static MediaSessionCompat mediaSession;
     private PlaybackStateCompat.Builder stateBuilder;
 
+    private long playerPosition = 0;
+    boolean playWhenReady = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,6 +62,8 @@ public class StepActivity extends AppCompatActivity implements ExoPlayer.EventLi
         }
         if (savedInstanceState != null) {
             currentStepId = savedInstanceState.getInt(getString(R.string.STEP_NUMBER_KEY));
+            playWhenReady = savedInstanceState.getBoolean(getString(R.string.VIDEO_PLAYER_PLAY_WHEN_READY_KEY));
+            playerPosition = savedInstanceState.getLong(getString(R.string.VIDEO_PLAYER_POSITION_KEY));
         }
 
         ActionBar actionBar = getSupportActionBar();
@@ -81,6 +85,10 @@ public class StepActivity extends AppCompatActivity implements ExoPlayer.EventLi
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(getString(R.string.STEP_NUMBER_KEY) , currentStepId);
+        if (player != null) {
+            outState.putLong(getString(R.string.VIDEO_PLAYER_POSITION_KEY), player.getCurrentPosition());
+            outState.putBoolean(getString(R.string.VIDEO_PLAYER_PLAY_WHEN_READY_KEY), player.getPlayWhenReady());
+        }
     }
 
     @Override
@@ -145,28 +153,22 @@ public class StepActivity extends AppCompatActivity implements ExoPlayer.EventLi
 
         String stepThumb = step.getThumbnailURL();
         if (stepThumb != null && stepThumb.trim().length() > 0) {
-            String thumbType = stepThumb.substring(stepThumb.lastIndexOf('.')+1);
-            if (thumbType.equals("mp4")) {
-                step.setVideoURL(stepThumb);
-                step.setThumbnailURL(null);
-            } else {
-                final ImageView ivStepThumb = findViewById(R.id.iv_step_thumbnail);
-                ivStepThumb.setVisibility(View.VISIBLE);
-                Picasso.with(this).load(Uri.parse(stepThumb))
-                        .placeholder(R.drawable.recipe_placeholder)
-                        .error(R.drawable.error)
-                        .into(ivStepThumb, new Callback() {
-                            @Override
-                            public void onSuccess() {
-                            }
+            final ImageView ivStepThumb = findViewById(R.id.iv_step_thumbnail);
+            ivStepThumb.setVisibility(View.VISIBLE);
+            Picasso.with(this).load(Uri.parse(stepThumb))
+                    .placeholder(R.drawable.recipe_placeholder)
+                    .error(R.drawable.error)
+                    .into(ivStepThumb, new Callback() {
+                        @Override
+                        public void onSuccess() {
+                        }
 
-                            @Override
-                            public void onError() {
-                                Toast.makeText(StepActivity.this, "Error: Unable to load thumbnail.", Toast.LENGTH_LONG).show();
-                                ivStepThumb.setVisibility(View.GONE);
-                            }
-                        });
-            }
+                        @Override
+                        public void onError() {
+                            Toast.makeText(StepActivity.this, "Error: Unable to load thumbnail.", Toast.LENGTH_LONG).show();
+                            ivStepThumb.setVisibility(View.GONE);
+                        }
+                    });
         }
         String stepVideoURL = step.getVideoURL();
         if (stepVideoURL != null && stepVideoURL.trim().length() > 0) {
@@ -206,7 +208,8 @@ public class StepActivity extends AppCompatActivity implements ExoPlayer.EventLi
             MediaSource mediaSource = new ExtractorMediaSource(Uri.parse(steps.get(currentStepId).getVideoURL()),
                     new DefaultDataSourceFactory(this, userAgent), new DefaultExtractorsFactory(), null, null);
             player.prepare(mediaSource);
-            player.setPlayWhenReady(false);
+            player.setPlayWhenReady(playWhenReady);
+            player.seekTo(playerPosition);
             mediaSession.setActive(true);
         }
     }

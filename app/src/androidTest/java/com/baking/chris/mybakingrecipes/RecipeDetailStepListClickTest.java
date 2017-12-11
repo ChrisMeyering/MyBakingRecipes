@@ -1,7 +1,5 @@
 package com.baking.chris.mybakingrecipes;
 
-import android.content.Intent;
-import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.Espresso;
 import android.support.test.espresso.IdlingResource;
 import android.support.test.espresso.action.ViewActions;
@@ -10,17 +8,12 @@ import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.baking.chris.mybakingrecipes.activity.MainActivity;
-import com.baking.chris.mybakingrecipes.activity.RecipeActivity;
-import com.baking.chris.mybakingrecipes.data.Recipe;
-import com.baking.chris.mybakingrecipes.data.Step;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import java.util.List;
 
 import static android.support.test.espresso.Espresso.onData;
 import static android.support.test.espresso.Espresso.onView;
@@ -52,7 +45,8 @@ public class RecipeDetailStepListClickTest {
 
     @Test
     public void clickStepGridViewItem_OpensStepActivity() {
-        onData(anything()).inAdapterView(withId(R.id.recipe_grid_view)).atPosition(0).perform(click());
+        onView(withId(R.id.rv_recipes))
+                .perform(RecyclerViewActions.actionOnItemAtPosition(0 ,click()));
         onView(withId(R.id.rv_steps)).perform(ViewActions.scrollTo())
                 .perform(RecyclerViewActions.actionOnItemAtPosition(1,click()));
         onView(withId(R.id.tv_step_description)).check(matches(isDisplayed()));
